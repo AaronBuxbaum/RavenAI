@@ -8,9 +8,9 @@
 #
 # These methods will be necessary for the project's main method to run.
 
-# Install Pillow and uncomment this line to access image processing.
-#from PIL import Image
-#import numpy
+from sets import Set
+from PIL import Image
+import numpy
 
 class Agent:
     # The default constructor for your Agent. Make sure to execute any
@@ -30,5 +30,32 @@ class Agent:
     #
     # Make sure to return your answer *as an integer* at the end of Solve().
     # Returning your answer as a string may cause your program to crash.
-    def Solve(self,problem):
-        return -1
+    def Solve(self, problem):
+        print 'Solving ' + problem.name
+        
+        # Get the matrix items
+        matrix = self.get_matrix(problem)
+        
+        # Check if all of the items are the same
+        if self.check_if_all_are_same(matrix):
+            print 'all are same'
+            return 0;
+            #find the same one
+
+        return 1;
+        
+    def get_matrix(self, problem):
+        return {k: v for k, v in problem.figures.iteritems() if k.isalpha()}
+
+    def check_if_all_are_same(self, matrix):
+        set = []
+    
+        for figureName in matrix:
+            thisFigure = matrix[figureName]
+            
+            for objectName in thisFigure.objects:
+                thisObject = thisFigure.objects[objectName]
+                set.append(thisObject.attributes)
+
+        print set
+        return True
