@@ -10,7 +10,8 @@
 
 from sets import Set
 from PIL import Image
-import numpy
+#import numpy
+import json
 
 class Agent:
     # The default constructor for your Agent. Make sure to execute any
@@ -32,30 +33,63 @@ class Agent:
     # Returning your answer as a string may cause your program to crash.
     def Solve(self, problem):
         print 'Solving ' + problem.name
-        
+
         # Get the matrix items
         matrix = self.get_matrix(problem)
-        
-        # Check if all of the items are the same
-        if self.check_if_all_are_same(matrix):
-            print 'all are same'
-            return 0;
-            #find the same one
+        options = self.get_options(problem)
 
-        return 1;
+        # Get the difference between A and C
+        diff = self.get_diff(matrix, 'A', 'C')
+
+        # If A equals C, then D must equal B
+        if diff == 'No difference':
+            return self.find_equal(matrix['B'], options)
+
+        if diff == 'Different number of objects':
+            return -1
         
+        # Compare semantic networks
+        for transform in diff:
+            if transform == 'angle':
+                rotation = int(diff[transform][0]) - int(diff[transform][1])
+
+        for objectKey in matrix['B'].objects:
+            matrix['B'].objects[objectKey].attributes['angle'] = str((int(matrix['B'].objects[objectKey].attributes['angle']) + rotation) % 360)
+        
+        return self.find_equal(matrix['B'], options)
+        
+    def get_diff(self, matrix, a, b):
+        objA = self.get_objects(matrix[a])
+        objB = self.get_objects(matrix[b])
+        if len(objA) != len(objB):
+            return 'Different number of objects'
+        if objA == objB:
+            return 'No difference'
+
+        dictA = json.loads(objA[0])
+        dictB = json.loads(objB[0])
+        diff = {}
+        for k in dictA.viewkeys() & dictB.viewkeys():
+            if dictA[k] != dictB[k]:
+                diff[k] = [dictA[k], dictB[k]]
+        return diff
+
     def get_matrix(self, problem):
         return {k: v for k, v in problem.figures.iteritems() if k.isalpha()}
 
-    def check_if_all_are_same(self, matrix):
-        set = []
-    
-        for figureName in matrix:
-            thisFigure = matrix[figureName]
-            
-            for objectName in thisFigure.objects:
-                thisObject = thisFigure.objects[objectName]
-                set.append(thisObject.attributes)
-
-        print set
-        return True
+    def get_options(self, problem):
+        return {k: v for k, v in problem.figures.iteritems() if k.isalpha() == False}
+        
+    def find_equal(self, comparator, options):
+        for option in options:
+            possibleAnswer = options[option]
+            if self.get_objects(comparator) == self.get_objects(possibleAnswer):
+                return int(option)
+        return -1
+        
+    def get_objects(self, object):
+        arr = []
+        for objectName in object.objects:
+            thisObject = object.objects[objectName]
+            arr.append(json.dumps(thisObject.attributes))
+        return arr
