@@ -41,10 +41,7 @@ class Agent:
             return -1
         
         comparisons = self.build_comparisons(figures)
-        comparisons = self.sort_comparisons(comparisons)
         comparisons = self.weight_comparisons(comparisons)
-        if len(comparisons) > 1:
-            print comparisons
         return comparisons[0]['id']
         
    
@@ -61,21 +58,11 @@ class Agent:
         return comparisons
         
         
-    # Sort by the length of the comparisons
-    # TODO: add weighting here rather than depending on length  
-    def sort_comparisons(self, comparisons):
-        comparisons = sorted(comparisons, key=lambda x: len(x))
-        possibleAnswers = [comparisons[0]]
-        for comparison in comparisons[1:]:
-            if len(comparison) <= len(possibleAnswers[0]):
-                possibleAnswers.append(comparison)
-        return possibleAnswers
-        
-        
     def weight_comparisons(self, comparisons):
         for comparison in comparisons:
             value = 0
             for attribute in comparison:
+                value = value + 5
                 if type(comparison[attribute]) == list and None in comparison[attribute]:
                     value = value + 10
                 if attribute == 'angle':
@@ -113,6 +100,28 @@ class Agent:
             if b == None:
                 b = 0
             return ((int(a) + int(b)) % 360)
+        elif attribute == 'alignment':
+            if a == None:
+                a = 'none-none'
+            if b == None:
+                b = 'none-none'
+            
+            relativeAlignment = []
+            first = a.split('-')
+            second = b.split('-')
+            
+            # assume just top/bottom and left/right
+            if first[0] == second[0]:
+                relativeAlignment.append('equal')
+            else:
+                relativeAlignment.append('flip')
+                
+            if first[1] == second[1]:
+                relativeAlignment.append('equal')
+            else:
+                relativeAlignment.append('flip')
+            
+            return '-'.join(relativeAlignment)
         else:
             return [a, b]
         
