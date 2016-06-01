@@ -42,16 +42,22 @@ class Agent:
         diff = self.get_diff(matrix, 'A', 'C')
 
         # If A equals C, then D must equal B
-        if len(diff) == 0:
-            return self.find_equal(matrix['B'], options)
-
-        # Compare semantic networks
-        #for transform in diff:
-        #    if transform == 'angle':
-        #        rotation = int(diff[transform][0]) - int(diff[transform][1])
-
-        #for objectKey in matrix['B'].objects:
-        #    matrix['B'].objects[objectKey].attributes['angle'] = str((int(matrix['B'].objects[objectKey].attributes['angle']) + rotation) % 360)
+        # Otherwise, apply transformation to B to find D
+        for attribute in diff:
+            transform = diff[attribute]
+            if attribute == 'angle':
+                rotation = int(transform[0]) - int(transform[1])
+                if attribute not in matrix['B'].objects['b'].attributes:
+                    matrix['B'].objects['b'].attributes[attribute] = 0
+                matrix['B'].objects['b'].attributes[attribute] = str((int(matrix['B'].objects['b'].attributes[attribute]) + rotation) % 360)
+            elif attribute == 'fill':
+                matrix['B'].objects['b'].attributes[attribute] = diff[attribute][1]
+            elif attribute == 'shape':
+                matrix['B'].objects['b'].attributes[attribute] = diff[attribute][1]
+            elif attribute == 'alignment':
+                matrix['B'].objects['b'].attributes[attribute] = diff[attribute][1]
+            else:
+                print attribute
         
         return self.find_equal(matrix['B'], options)
 
@@ -62,8 +68,11 @@ class Agent:
         possible_attributes = ['shape', 'size', 'fill', 'angle', 'alignment']
         return [a, b]
         
+        
+        
+    # TODO: handle multiple objects
     def get_diff(self, matrix, a, b):        
-        # TODO: handle multiple objects
+
         differences = {}
         objectA = matrix[a].objects[a.lower()].attributes
         objectB = matrix[b].objects[b.lower()].attributes
@@ -72,8 +81,8 @@ class Agent:
             if objectA[attribute] != objectB[attribute]:
                 differences[attribute] = self.handle_difference(attribute, objectA[attribute], objectB[attribute])
                 
-        print differences
         return differences
+        
         
         
 
