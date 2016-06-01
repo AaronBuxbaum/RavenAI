@@ -42,37 +42,40 @@ class Agent:
         diff = self.get_diff(matrix, 'A', 'C')
 
         # If A equals C, then D must equal B
-        if diff == 'No difference':
+        if len(diff) == 0:
             return self.find_equal(matrix['B'], options)
 
-        if diff == 'Different number of objects':
-            return -1
-        
         # Compare semantic networks
-        for transform in diff:
-            if transform == 'angle':
-                rotation = int(diff[transform][0]) - int(diff[transform][1])
+        #for transform in diff:
+        #    if transform == 'angle':
+        #        rotation = int(diff[transform][0]) - int(diff[transform][1])
 
-        for objectKey in matrix['B'].objects:
-            matrix['B'].objects[objectKey].attributes['angle'] = str((int(matrix['B'].objects[objectKey].attributes['angle']) + rotation) % 360)
+        #for objectKey in matrix['B'].objects:
+        #    matrix['B'].objects[objectKey].attributes['angle'] = str((int(matrix['B'].objects[objectKey].attributes['angle']) + rotation) % 360)
         
         return self.find_equal(matrix['B'], options)
-        
-    def get_diff(self, matrix, a, b):
-        objA = self.get_objects(matrix[a])
-        objB = self.get_objects(matrix[b])
-        if len(objA) != len(objB):
-            return 'Different number of objects'
-        if objA == objB:
-            return 'No difference'
 
-        dictA = json.loads(objA[0])
-        dictB = json.loads(objB[0])
-        diff = {}
-        for k in dictA.viewkeys() & dictB.viewkeys():
-            if dictA[k] != dictB[k]:
-                diff[k] = [dictA[k], dictB[k]]
-        return diff
+
+
+    # TODO
+    def handle_difference(self, attribute, a, b):
+        possible_attributes = ['shape', 'size', 'fill', 'angle', 'alignment']
+        return [a, b]
+        
+    def get_diff(self, matrix, a, b):        
+        # TODO: handle multiple objects
+        differences = {}
+        objectA = matrix[a].objects[a.lower()].attributes
+        objectB = matrix[b].objects[b.lower()].attributes
+        
+        for attribute in objectA.viewkeys() & objectB.viewkeys():
+            if objectA[attribute] != objectB[attribute]:
+                differences[attribute] = self.handle_difference(attribute, objectA[attribute], objectB[attribute])
+                
+        print differences
+        return differences
+        
+        
 
     def get_matrix(self, problem):
         return {k: v for k, v in problem.figures.iteritems() if k.isalpha()}
