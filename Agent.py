@@ -8,8 +8,7 @@
 #
 # These methods will be necessary for the project's main method to run.
 
-from sets import Set
-from PIL import Image
+#from PIL import Image
 #import numpy
 import json
 
