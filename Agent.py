@@ -58,8 +58,8 @@ class Agent:
                 matrix['B'].objects['b'].attributes[attribute] = diff[attribute][1]
             else:
                 print attribute
-        
-        return self.find_equal(matrix['B'], options)
+
+        return self.find_best_match(matrix['B'], options)
 
 
 
@@ -84,6 +84,15 @@ class Agent:
         return differences
         
         
+    # TODO: rewrite, allow some gray area
+    def find_best_match(self, comparator, options):
+        for option in options:
+            possibleAnswer = options[option]
+            if self.get_objects(comparator) == self.get_objects(possibleAnswer):
+                return int(option)
+        return -1
+        
+        
         
 
     def get_matrix(self, problem):
@@ -91,13 +100,6 @@ class Agent:
 
     def get_options(self, problem):
         return {k: v for k, v in problem.figures.iteritems() if k.isalpha() == False}
-        
-    def find_equal(self, comparator, options):
-        for option in options:
-            possibleAnswer = options[option]
-            if self.get_objects(comparator) == self.get_objects(possibleAnswer):
-                return int(option)
-        return -1
         
     def get_objects(self, object):
         arr = []
