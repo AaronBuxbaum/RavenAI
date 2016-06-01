@@ -32,77 +32,90 @@ class Agent:
     # Returning your answer as a string may cause your program to crash.
     def Solve(self, problem):
         print 'Solving ' + problem.name
-
-        # Get the matrix items
-        matrix = self.get_matrix(problem)
-        options = self.get_options(problem)
-
-        # Get the difference between A and C
-        diff = self.get_diff(matrix, 'A', 'C')
-
-        # If A equals C, then D must equal B
-        # Otherwise, apply transformation to B to find D
-        for attribute in diff:
-            transform = diff[attribute]
-            if attribute == 'angle':
-                rotation = int(transform[0]) - int(transform[1])
-                if attribute not in matrix['B'].objects['b'].attributes:
-                    matrix['B'].objects['b'].attributes[attribute] = 0
-                matrix['B'].objects['b'].attributes[attribute] = str((int(matrix['B'].objects['b'].attributes[attribute]) + rotation) % 360)
-            elif attribute == 'fill':
-                matrix['B'].objects['b'].attributes[attribute] = diff[attribute][1]
-            elif attribute == 'shape':
-                matrix['B'].objects['b'].attributes[attribute] = diff[attribute][1]
-            elif attribute == 'alignment':
-                matrix['B'].objects['b'].attributes[attribute] = diff[attribute][1]
-            else:
-                print attribute
-
-        return self.find_best_match(matrix['B'], options)
+        return self.find_best_match(problem.figures)
 
 
-
-    # TODO
-    def handle_difference(self, attribute, a, b):
-        possible_attributes = ['shape', 'size', 'fill', 'angle', 'alignment']
-        return [a, b]
+    def find_best_match(self, figures):
+        # TODO: handle multiple objects
+        if len(figures['A'].objects) > 1:
+            return -1
+        
+        comparisons = self.build_comparisons(figures)
+        comparisons = self.sort_comparisons(comparisons)
+        comparisons = self.weight_comparisons(comparisons)
+        if len(comparisons) > 1:
+            print comparisons
+        return comparisons[0]['id']
+        
+   
+    # Compare all possible comparisons to the comparator
+    def build_comparisons(self, figures):
+        comparator = self.diff_figures(figures, 'A', 'C')  # Create a baseline comparison
+        comparisons = []
+        options = self.get_options(figures)
+        for option in options:
+            diff = self.diff_figures(figures, 'B', option)
+            comparison = self.diff_objects(comparator, diff)
+            comparison['id'] = int(option)
+            comparisons.append(comparison)
+        return comparisons
         
         
+    # Sort by the length of the comparisons
+    # TODO: add weighting here rather than depending on length  
+    def sort_comparisons(self, comparisons):
+        comparisons = sorted(comparisons, key=lambda x: len(x))
+        possibleAnswers = [comparisons[0]]
+        for comparison in comparisons[1:]:
+            if len(comparison) <= len(possibleAnswers[0]):
+                possibleAnswers.append(comparison)
+        return possibleAnswers
         
-    # TODO: handle multiple objects
-    def get_diff(self, matrix, a, b):        
-
+        
+    def weight_comparisons(self, comparisons):
+        for comparison in comparisons:
+            value = 0
+            for attribute in comparison:
+                if type(comparison[attribute]) == list and None in comparison[attribute]:
+                    value = value + 10
+                if attribute == 'angle':
+                    value = value + 1
+                elif attribute == 'alignment':
+                    value = value + 2
+                elif attribute == 'shape':
+                    value = value + 3
+            comparison['value'] = value
+        return sorted(comparisons, key=lambda x: x['value'])
+            
+    
+    def diff_figures(self, figures, a, b):
+        objectA = figures[a].objects[figures[a].objects.keys()[0]].attributes
+        objectB = figures[b].objects[figures[b].objects.keys()[0]].attributes
+        return self.diff_objects(objectA, objectB)
+            
+            
+    def diff_objects(self, diff1, diff2):
         differences = {}
-        objectA = matrix[a].objects[a.lower()].attributes
-        objectB = matrix[b].objects[b.lower()].attributes
-        
-        for attribute in objectA.viewkeys() & objectB.viewkeys():
-            if objectA[attribute] != objectB[attribute]:
-                differences[attribute] = self.handle_difference(attribute, objectA[attribute], objectB[attribute])
-                
+        for attribute in diff1.viewkeys() | diff2.viewkeys():
+            if attribute not in diff1:
+                diff1[attribute] = None
+            if attribute not in diff2:
+                diff2[attribute] = None
+            if diff1[attribute] != diff2[attribute]:
+                differences[attribute] = self.handle_difference(attribute, diff1[attribute], diff2[attribute])
         return differences
         
-        
-    # TODO: rewrite, allow some gray area
-    def find_best_match(self, comparator, options):
-        for option in options:
-            possibleAnswer = options[option]
-            if self.get_objects(comparator) == self.get_objects(possibleAnswer):
-                return int(option)
-        return -1
-        
-        
-        
 
-    def get_matrix(self, problem):
-        return {k: v for k, v in problem.figures.iteritems() if k.isalpha()}
-
-    def get_options(self, problem):
-        return {k: v for k, v in problem.figures.iteritems() if k.isalpha() == False}
+    def handle_difference(self, attribute, a, b):
+        if attribute == 'angle':
+            if a == None:
+                a = 0
+            if b == None:
+                b = 0
+            return ((int(a) + int(b)) % 360)
+        else:
+            return [a, b]
         
-    def get_objects(self, object):
-        arr = []
-        for objectName in object.objects:
-            thisObject = object.objects[objectName]
-            arr.append(json.dumps(thisObject.attributes))
-        return arr
+        
+    def get_options(self, figures):
+        return {k: v for k, v in figures.iteritems() if k.isalpha() == False}
