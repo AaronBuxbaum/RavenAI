@@ -79,7 +79,7 @@ class Agent:
         objectA = figures[a].objects[figures[a].objects.keys()[0]].attributes
         objectB = figures[b].objects[figures[b].objects.keys()[0]].attributes
         return self.diff_objects(objectA, objectB)
-            
+
             
     def diff_objects(self, diff1, diff2):
         differences = {}
@@ -106,21 +106,16 @@ class Agent:
             if b == None:
                 b = 'none-none'
             
-            relativeAlignment = []
             first = a.split('-')
             second = b.split('-')
             
             # assume just top/bottom and left/right
-            if first[0] == second[0]:
-                relativeAlignment.append('equal')
-            else:
-                relativeAlignment.append('flip')
-                
-            if first[1] == second[1]:
-                relativeAlignment.append('equal')
-            else:
-                relativeAlignment.append('flip')
-            
+            relativeAlignment = []
+            for i in range(len(first)):
+                if first[i] == second[i]:
+                    relativeAlignment.append('equal')
+                else:
+                    relativeAlignment.append('flip')
             return '-'.join(relativeAlignment)
         else:
             return [a, b]
