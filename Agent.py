@@ -42,7 +42,8 @@ class Agent:
         
         comparisons = self.build_comparisons(figures)
         comparisons = self.weight_comparisons(comparisons)
-        return comparisons[0]['id']
+        id = self.find_id(comparisons[0])
+        return id
         
    
     # Compare all possible comparisons to the comparator
@@ -52,8 +53,8 @@ class Agent:
         options = self.get_options(figures)
         for option in options:
             diff = self.diff_figures(figures, 'B', option)
-            comparison = self.diff_objects(comparator, diff)
-            comparison['id'] = int(option)
+            comparison = self.diff_diffs(comparator, diff)
+            #comparison['id'] = int(option)
             comparisons.append(comparison)
         return comparisons
         
@@ -76,20 +77,30 @@ class Agent:
             
     
     def diff_figures(self, figures, a, b):
-        objectA = figures[a].objects[figures[a].objects.keys()[0]].attributes
-        objectB = figures[b].objects[figures[b].objects.keys()[0]].attributes
-        return self.diff_objects(objectA, objectB)
+        differences = [];
+        for i,j in zip(figures[a].objects, figures[b].objects):
+            objectA = figures[a].objects[i].attributes
+            objectB = figures[b].objects[j].attributes
+            differences.append(self.diff_objects(objectA, objectB))
+        return differences
 
             
-    def diff_objects(self, diff1, diff2):
+    def diff_objects(self, obj1, obj2):
         differences = {}
-        for attribute in diff1.viewkeys() | diff2.viewkeys():
-            if attribute not in diff1:
-                diff1[attribute] = None
-            if attribute not in diff2:
-                diff2[attribute] = None
-            if diff1[attribute] != diff2[attribute]:
-                differences[attribute] = self.handle_difference(attribute, diff1[attribute], diff2[attribute])
+        for attribute in obj1.viewkeys() | obj2.viewkeys():
+            if attribute not in obj1:
+                obj1[attribute] = None
+            if attribute not in obj2:
+                obj2[attribute] = None
+            if obj1[attribute] != obj2[attribute]:
+                differences[attribute] = self.handle_difference(attribute, obj1[attribute], obj2[attribute])
+        return differences
+        
+        
+    def diff_diffs(self, diff1, diff2):
+        differences = []
+        for i, diff in enumerate(diff1):
+            differences.append(self.diff_objects(diff1[i], diff2[i]))
         return differences
         
 
