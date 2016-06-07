@@ -46,10 +46,6 @@ class Agent:
         comparator = self.diff_figures(figures, 'A', 'C')  # Create a baseline comparison
         comparisons = {}
         
-        print 'Comparator:'
-        print comparator
-        print
-
         options = self.get_options(figures)
         for option in sorted(options):
             diff = self.diff_figures(figures, 'B', option)
@@ -80,12 +76,13 @@ class Agent:
     
     def diff_figures(self, figures, a, b):
         differences = [];
+        if len(figures[b].objects) > len(figures[a].objects):
+            differences.append({'object': 'Added'})
+            figures[b].objects.pop(sorted(figures[b].objects)[0])
         for i,j in zip(sorted(figures[a].objects), sorted(figures[b].objects)):
             objectA = figures[a].objects[i].attributes
             objectB = figures[b].objects[j].attributes
             differences.append(self.diff_objects(objectA, objectB))
-        if len(figures[b].objects) > len(figures[a].objects):
-            differences.append({'object': 'Added'})
         return differences
 
             
