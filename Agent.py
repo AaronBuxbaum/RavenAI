@@ -37,7 +37,6 @@ class Agent:
 
     def find_best_match(self, figures):
         comparisons = self.build_comparisons(figures)
-        print comparisons
         comparisons = self.weight_comparisons(comparisons)
         return int(min(comparisons.iterkeys(), key=(lambda k: comparisons[k])))
         
@@ -46,10 +45,6 @@ class Agent:
     def build_comparisons(self, figures):
         comparator = self.diff_figures(figures, 'A', 'C')  # Create a baseline comparison
         comparisons = {}
-
-        print ''
-        print comparator
-        print ''
 
         options = self.get_options(figures)
         for option in options:
@@ -91,7 +86,6 @@ class Agent:
     def diff_objects(self, obj1, obj2):
         differences = {}
         for attribute in obj1.viewkeys() | obj2.viewkeys():
-            print attribute
             if attribute not in obj1:
                 obj1[attribute] = None
             if attribute not in obj2:
@@ -104,9 +98,6 @@ class Agent:
         
         
     def diff_diffs(self, diff1, diff2):
-        print diff1
-        print diff2
-        
         differences = []
         for a,b in zip(sorted(diff1), sorted(diff2)):
             differences.append(self.diff_objects(a, b))
