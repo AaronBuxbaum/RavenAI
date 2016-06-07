@@ -37,6 +37,7 @@ class Agent:
 
     def find_best_match(self, figures):
         comparisons = self.build_comparisons(figures)
+        print comparisons
         comparisons = self.weight_comparisons(comparisons)
         return int(min(comparisons.iterkeys(), key=(lambda k: comparisons[k])))
         
@@ -45,6 +46,11 @@ class Agent:
     def build_comparisons(self, figures):
         comparator = self.diff_figures(figures, 'A', 'C')  # Create a baseline comparison
         comparisons = {}
+
+        print ''
+        print comparator
+        print ''
+
         options = self.get_options(figures)
         for option in options:
             diff = self.diff_figures(figures, 'B', option)
@@ -57,23 +63,25 @@ class Agent:
         for i in comparisons:
             comparison = comparisons[i]
             value = 0
+
             for diff in comparison:
-                value = value + 5
-                if type(diff) == list and None in diff:
-                    value = value + 10
-                if diff == 'angle':
-                    value = value + 1
-                elif diff == 'alignment':
-                    value = value + 2
-                elif diff == 'shape':
-                    value = value + 3
+                for attr in diff:
+                    value = value + 5
+                    if type(attr) == list and None in attr:
+                        value = value + 10
+                    if attr == 'angle':
+                        value = value + 1
+                    elif attr == 'alignment':
+                        value = value + 2
+                    elif attr == 'shape':
+                        value = value + 3
             comparisons[i] = value
         return comparisons
             
     
     def diff_figures(self, figures, a, b):
         differences = [];
-        for i,j in zip(figures[a].objects, figures[b].objects):
+        for i,j in zip(sorted(figures[a].objects), sorted(figures[b].objects)):
             objectA = figures[a].objects[i].attributes
             objectB = figures[b].objects[j].attributes
             differences.append(self.diff_objects(objectA, objectB))
@@ -83,29 +91,37 @@ class Agent:
     def diff_objects(self, obj1, obj2):
         differences = {}
         for attribute in obj1.viewkeys() | obj2.viewkeys():
+            print attribute
             if attribute not in obj1:
                 obj1[attribute] = None
             if attribute not in obj2:
                 obj2[attribute] = None
             if obj1[attribute] != obj2[attribute]:
-                differences[attribute] = self.handle_difference(attribute, obj1[attribute], obj2[attribute])
+                difference_observed = self.handle_difference(attribute, obj1[attribute], obj2[attribute])
+                if difference_observed is not None:
+                    differences[attribute] = difference_observed
         return differences
         
         
     def diff_diffs(self, diff1, diff2):
+        print diff1
+        print diff2
+        
         differences = []
-        for i, diff in enumerate(diff1):
-            differences.append(self.diff_objects(diff1[i], diff2[i]))
+        for a,b in zip(sorted(diff1), sorted(diff2)):
+            differences.append(self.diff_objects(a, b))
         return differences
         
 
     def handle_difference(self, attribute, a, b):
         if attribute == 'angle':
-            if a == None:
-                a = 0
-            if b == None:
-                b = 0
-            return ((int(a) + int(b)) % 360)
+            a = a or 0
+            b = b or 0
+            return (int(a) + int(b)) % 360
+        elif attribute == 'fill':
+            return a == b
+        elif attribute == 'inside':
+            return None
         elif attribute == 'alignment':
             if a == None:
                 a = 'none-none'
