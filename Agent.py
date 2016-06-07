@@ -76,9 +76,12 @@ class Agent:
     
     def diff_figures(self, figures, a, b):
         differences = [];
-        if len(figures[b].objects) > len(figures[a].objects):
+        while len(figures[b].objects) > len(figures[a].objects):
             differences.append({'object': 'Added'})
             figures[b].objects.pop(sorted(figures[b].objects)[0])
+        while len(figures[a].objects) > len(figures[b].objects):
+            differences.append({'object': 'Removed'})
+            figures[a].objects.pop(sorted(figures[a].objects)[0])
         for i,j in zip(sorted(figures[a].objects), sorted(figures[b].objects)):
             objectA = figures[a].objects[i].attributes
             objectB = figures[b].objects[j].attributes
