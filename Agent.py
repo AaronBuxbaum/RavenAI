@@ -45,9 +45,13 @@ class Agent:
     def build_comparisons(self, figures):
         comparator = self.diff_figures(figures, 'A', 'C')  # Create a baseline comparison
         comparisons = {}
+        
+        print 'Comparator:'
+        print comparator
+        print
 
         options = self.get_options(figures)
-        for option in options:
+        for option in sorted(options):
             diff = self.diff_figures(figures, 'B', option)
             comparison = self.diff_diffs(comparator, diff)
             comparisons[option] = comparison
@@ -80,6 +84,8 @@ class Agent:
             objectA = figures[a].objects[i].attributes
             objectB = figures[b].objects[j].attributes
             differences.append(self.diff_objects(objectA, objectB))
+        if len(figures[b].objects) > len(figures[a].objects):
+            differences.append({'object': 'Added'})
         return differences
 
             
@@ -99,7 +105,7 @@ class Agent:
         
     def diff_diffs(self, diff1, diff2):
         differences = []
-        for a,b in zip(sorted(diff1), sorted(diff2)):
+        for a,b in zip(diff1, diff2):
             differences.append(self.diff_objects(a, b))
         return differences
         
@@ -114,10 +120,8 @@ class Agent:
         elif attribute == 'inside':
             return None
         elif attribute == 'alignment':
-            if a == None:
-                a = 'none-none'
-            if b == None:
-                b = 'none-none'
+            a = a or 'none-none'
+            b = b or 'none-none'
             
             first = a.split('-')
             second = b.split('-')
