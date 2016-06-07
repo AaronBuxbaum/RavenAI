@@ -36,44 +36,39 @@ class Agent:
 
 
     def find_best_match(self, figures):
-        # TODO: handle multiple objects
-        if len(figures['A'].objects) > 1:
-            return -1
-        
         comparisons = self.build_comparisons(figures)
         comparisons = self.weight_comparisons(comparisons)
-        id = self.find_id(comparisons[0])
-        return id
+        return int(min(comparisons.iterkeys(), key=(lambda k: comparisons[k])))
         
    
     # Compare all possible comparisons to the comparator
     def build_comparisons(self, figures):
         comparator = self.diff_figures(figures, 'A', 'C')  # Create a baseline comparison
-        comparisons = []
+        comparisons = {}
         options = self.get_options(figures)
         for option in options:
             diff = self.diff_figures(figures, 'B', option)
             comparison = self.diff_diffs(comparator, diff)
-            #comparison['id'] = int(option)
-            comparisons.append(comparison)
+            comparisons[option] = comparison
         return comparisons
         
         
     def weight_comparisons(self, comparisons):
-        for comparison in comparisons:
+        for i in comparisons:
+            comparison = comparisons[i]
             value = 0
-            for attribute in comparison:
+            for diff in comparison:
                 value = value + 5
-                if type(comparison[attribute]) == list and None in comparison[attribute]:
+                if type(diff) == list and None in diff:
                     value = value + 10
-                if attribute == 'angle':
+                if diff == 'angle':
                     value = value + 1
-                elif attribute == 'alignment':
+                elif diff == 'alignment':
                     value = value + 2
-                elif attribute == 'shape':
+                elif diff == 'shape':
                     value = value + 3
-            comparison['value'] = value
-        return sorted(comparisons, key=lambda x: x['value'])
+            comparisons[i] = value
+        return comparisons
             
     
     def diff_figures(self, figures, a, b):
