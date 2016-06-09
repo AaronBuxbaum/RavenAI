@@ -10,7 +10,7 @@
 
 #from PIL import Image
 #import numpy
-import json
+import random
 
 class Agent:
     # The default constructor for your Agent. Make sure to execute any
@@ -38,7 +38,12 @@ class Agent:
     def find_best_match(self, figures):
         comparisons = self.build_comparisons(figures)
         comparisons = self.weight_comparisons(comparisons)
-        return int(min(comparisons.iterkeys(), key=(lambda k: comparisons[k])))
+        comparisons = sorted(comparisons.items(), key=lambda x: x[1])
+        i = 0
+        for item in comparisons:
+            if item[1] == comparisons[0][1]:
+                i = i + 1
+        return int(random.choice(comparisons[0:i])[0])
         
    
     # Compare all possible comparisons to the comparator
