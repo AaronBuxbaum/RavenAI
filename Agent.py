@@ -39,11 +39,8 @@ class Agent:
         comparisons = self.build_comparisons(figures)
         comparisons = self.weight_comparisons(comparisons)
         comparisons = sorted(comparisons.items(), key=lambda x: x[1])
-        i = 0
-        for item in comparisons:
-            if item[1] == comparisons[0][1]:
-                i = i + 1
-        return int(random.choice(comparisons[0:i])[0])
+        number_of_matches = self.get_match_number(comparisons)
+        return select_random_from_slice(comparisons, number_of_matches)
         
    
     # Compare all possible comparisons to the comparator
@@ -141,6 +138,19 @@ class Agent:
             return '-'.join(relativeAlignment)
         else:
             return [a, b]
+
+    def get_match_number(self, comparisons):
+        i = 0
+        for item in comparisons:
+            if item[1] == comparisons[0][1]:
+                i = i + 1
+        return i
+
+
+    def select_random_from_slice(self, comparisons, number_of_matches):
+        if number_of_matches == len(comparisons):
+            return -1
+        return int(random.choice(comparisons[0:number_of_matches])[0])
         
         
     def get_options(self, figures):
