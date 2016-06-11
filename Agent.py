@@ -40,7 +40,7 @@ class Agent:
         comparisons = self.weight_comparisons(comparisons)
         comparisons = sorted(comparisons.items(), key=lambda x: x[1])
         number_of_matches = self.get_match_number(comparisons)
-        return select_random_from_slice(comparisons, number_of_matches)
+        return self.select_random_from_slice(comparisons, number_of_matches)
         
    
     # Compare all possible comparisons to the comparator
