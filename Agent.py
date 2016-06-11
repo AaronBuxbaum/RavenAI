@@ -119,8 +119,10 @@ class Agent:
             return (int(a) + int(b)) % 360
         elif attribute == 'fill':
             return a == b
-        elif attribute == 'inside':
-            return None
+        elif attribute in ['inside', 'left-of', 'above', 'overlaps', 'right-of', 'top-of', 'bottom-of', 'outside']:
+            a = a or ""
+            b = b or ""
+            return [len(str(a).split(",")), len(str(b).split(","))]
         elif attribute == 'alignment':
             a = a or 'none-none'
             b = b or 'none-none'
