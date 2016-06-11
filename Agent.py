@@ -60,18 +60,11 @@ class Agent:
         for i in comparisons:
             comparison = comparisons[i]
             value = 0
-
             for diff in comparison:
                 for attr in diff:
                     value = value + 5
-                    if type(attr) == list and None in attr:
-                        value = value + 10
-                    if attr == 'angle':
+                    if attr == 'shape':
                         value = value + 1
-                    elif attr == 'alignment':
-                        value = value + 2
-                    elif attr == 'shape':
-                        value = value + 3
             comparisons[i] = value
         return comparisons
             
