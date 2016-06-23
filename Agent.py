@@ -8,11 +8,11 @@ class Agent:
 
     def Solve(self, problem):
         print 'Solving ' + problem.name
-        return self.find_best_match(problem.figures)
+        return self.find_best_match(problem.figures, problem.problemType)
 
 
-    def find_best_match(self, figures):
-        comparisons = self.build_comparisons(figures)
+    def find_best_match(self, figures, problemType):
+        comparisons = self.build_comparisons(figures, problemType)
         comparisons = self.weight_comparisons(comparisons)
         comparisons = sorted(comparisons.items(), key=lambda x: x[1])
         number_of_matches = self.get_match_number(comparisons)
@@ -20,16 +20,24 @@ class Agent:
         
    
     # Compare all possible comparisons to the comparator
-    def build_comparisons(self, figures):
-        comparator = self.diff_figures(figures, 'A', 'C')  # Create a baseline comparison
+    def build_comparisons(self, figures, problemType):
+        comparator_figures = self.get_comparator_figures(problemType)
+        comparator = self.diff_figures(figures, comparator_figures[0], comparator_figures[1])  # Create a baseline comparison
         comparisons = {}
         
         options = self.get_options(figures)
         for option in sorted(options):
-            diff = self.diff_figures(figures, 'B', option)
+            diff = self.diff_figures(figures, comparator_figures[2], option)
             comparison = self.diff_diffs(comparator, diff)
             comparisons[option] = comparison
         return comparisons
+
+
+    def get_comparator_figures(self, problemType):
+        if problemType == '2x2':
+            return ['A', 'C', 'B']
+        else:
+            return ['E', 'H', 'F']
         
         
     def weight_comparisons(self, comparisons):
