@@ -22,11 +22,14 @@ def main():
 
   files = args.files
   agent_file = 'Agent.py'
+  language_file = 'language.txt'
   if agent_file not in files:
     files.append(agent_file)
+  if language_file not in files:
+    files.append(language_file)
 
   forbidden_exts = ['.class', '.pyc']
-  expected_exts = ['.java', '.py']
+  expected_exts = ['.java', '.py', '.txt']
   def ext(file):
     _, extension = os.path.splitext(file)
     return extension
@@ -51,7 +54,8 @@ def main():
     result = submission.result()
     if 'Execution' in result.get('Error', {}):
       eprint('Execution error!')
-      eprint(result['Error']['Execution'])
+      #eprint(result['Error']['Execution'])
+      eprint(json.dumps(result['Error'], indent=4))
     elif 'Build' in result.get('Error', {}):
       eprint('Build error!')
       eprint(result['Error']['Build'])
