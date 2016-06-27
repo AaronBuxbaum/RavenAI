@@ -37,7 +37,7 @@ class Agent:
         if problemType == '2x2':
             return ['A', 'C', 'B']
         else:
-            return ['E', 'H', 'F']
+            return ['A', 'C', 'G']
         
         
     def weight_comparisons(self, comparisons):
