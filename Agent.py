@@ -90,7 +90,16 @@ class Agent:
         
 
     def handle_difference(self, attribute, a, b):
-        if attribute == 'angle':
+        if attribute == 'size':
+            a = a or 0
+            b = b or 0
+            try:
+                if int(a) and int(b):
+                    return a - b
+            except:
+                sizes = [0, 'very small', 'small', 'medium', 'large', 'very large', 'huge']
+                return int(sizes.index(a) - sizes.index(b))
+        elif attribute == 'angle':
             a = a or 0
             b = b or 0
             return (int(a) + int(b)) % 360
