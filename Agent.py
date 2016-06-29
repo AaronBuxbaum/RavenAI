@@ -1,6 +1,6 @@
-#from PIL import Image
-#import numpy
+from PIL import Image, ImageChops
 import random
+from numpy import mean, sqrt, square
 
 class Agent:
     def __init__(self):
@@ -12,17 +12,40 @@ class Agent:
 
 
     def find_best_match(self, figures, problemType):
-        comparisons = self.build_comparisons(figures, problemType)
-        comparisons = self.weight_comparisons(comparisons)
-        comparisons = sorted(comparisons.items(), key=lambda x: x[1])
-        number_of_matches = self.get_match_number(comparisons)
-        return self.select_random_from_slice(comparisons, number_of_matches)
+        # Solve 2x2 problems verbally
+        if problemType == '2x2':
+            comparisons = self.build_comparisons(figures, problemType)
+            comparisons = self.weight_comparisons(comparisons)
+            comparisons = sorted(comparisons.items(), key=lambda x: x[1])
+            number_of_matches = self.get_match_number(comparisons)
+            return self.select_random_from_slice(comparisons, number_of_matches)
 
+        # Solve 3x3 problems visually
+        else:
+            a_b = self.get_root_mean_square(self.get_histogram_from_images(figures, 'A', 'B'))
+            b_c = self.get_root_mean_square(self.get_histogram_from_images(figures, 'B', 'C'))
+            d_e = self.get_root_mean_square(self.get_histogram_from_images(figures, 'D', 'E'))
+            e_f = self.get_root_mean_square(self.get_histogram_from_images(figures, 'E', 'F'))
+            g_h = self.get_root_mean_square(self.get_histogram_from_images(figures, 'G', 'H'))
+            h_i = self.get_root_mean_square(self.get_histogram_from_images(figures, 'H', '1'))
+            print self.get_root_mean_square([a_b, b_c])
+            print self.get_root_mean_square([d_e, e_f])
+            print self.get_root_mean_square([g_h, h_i])
+            return 3
+
+    def get_histogram_from_images(self, figures, a, b):
+        im1 = Image.open(figures[a].visualFilename)
+        im2 = Image.open(figures[b].visualFilename)
+        return ImageChops.difference(im1, im2).histogram()
+
+    # Calculate similarity between two images with root mean square.
+    def get_root_mean_square(self, arr):
+        return sqrt(mean(square(arr)))
 
     # Compare all possible comparisons to the comparator
     def build_comparisons(self, figures, problemType):
         comparator_figures = self.get_comparator_figures(problemType)
-        comparator = self.diff_figures(figures, comparator_figures[0], comparator_figures[1])  # Create a baseline comparison
+        comparator = self.diff_figures(figures, comparator_figures[0], comparator_figures[1])
         comparisons = {}
 
         options = self.get_options(figures)
@@ -37,7 +60,7 @@ class Agent:
         if problemType == '2x2':
             return ['A', 'C', 'B']
         else:
-            return ['A', 'C', 'G']
+            return ['E', 'H', 'F']
 
 
     def weight_comparisons(self, comparisons):
