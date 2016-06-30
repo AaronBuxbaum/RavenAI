@@ -1,6 +1,6 @@
 from PIL import Image, ImageChops
 import random
-from numpy import mean, sqrt, square
+from numpy import mean, sqrt, square, abs, subtract
 
 class Agent:
     def __init__(self):
@@ -24,14 +24,14 @@ class Agent:
         else:
             a_b = self.get_root_mean_square(self.get_histogram_from_images(figures, 'A', 'B'))
             b_c = self.get_root_mean_square(self.get_histogram_from_images(figures, 'B', 'C'))
-            d_e = self.get_root_mean_square(self.get_histogram_from_images(figures, 'D', 'E'))
-            e_f = self.get_root_mean_square(self.get_histogram_from_images(figures, 'E', 'F'))
+            row_multiplier = a_b / b_c
+
+            possible_answers = []
             g_h = self.get_root_mean_square(self.get_histogram_from_images(figures, 'G', 'H'))
-            h_i = self.get_root_mean_square(self.get_histogram_from_images(figures, 'H', '1'))
-            print self.get_root_mean_square([a_b, b_c])
-            print self.get_root_mean_square([d_e, e_f])
-            print self.get_root_mean_square([g_h, h_i])
-            return 3
+            for option in sorted(self.get_options(figures)):
+                h_x = self.get_root_mean_square(self.get_histogram_from_images(figures, 'H', str(option)))
+                possible_answers.append(g_h / h_x)
+            return abs(subtract.outer(possible_answers, row_multiplier)).argmin() + 1
 
     def get_histogram_from_images(self, figures, a, b):
         im1 = Image.open(figures[a].visualFilename)
