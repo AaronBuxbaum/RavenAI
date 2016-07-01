@@ -1,6 +1,6 @@
 import random
 import numpy
-import PIL
+from PIL import Image, ImageChops
 
 class Agent:
     def __init__(self):
@@ -32,9 +32,9 @@ class Agent:
             return numpy.abs(numpy.subtract.outer(possible_answers, comparator)).argmin() + 1
 
     def get_histogram_from_images(self, figures, a, b):
-        im1 = PIL.Image.open(figures[a].visualFilename)
-        im2 = PIL.Image.open(figures[b].visualFilename)
-        return PIL.ImageChops.difference(im1, im2).histogram()
+        im1 = Image.open(figures[a].visualFilename)
+        im2 = Image.open(figures[b].visualFilename)
+        return ImageChops.difference(im1, im2).histogram()
 
     # Calculate similarity between two images with root mean square.
     def get_root_mean_square(self, arr):
