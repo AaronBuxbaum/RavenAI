@@ -1,6 +1,6 @@
-from PIL import Image, ImageChops
 import random
-from numpy import mean, sqrt, square, abs, subtract
+import numpy
+import PIL
 
 class Agent:
     def __init__(self):
@@ -29,16 +29,16 @@ class Agent:
             for option in sorted(self.get_options(figures)):
                 compare = self.get_root_mean_square(self.get_histogram_from_images(figures, comparator_figures[2], str(option)))
                 possible_answers.append(compare)
-            return abs(subtract.outer(possible_answers, comparator)).argmin() + 1
+            return numpy.abs(numpy.subtract.outer(possible_answers, comparator)).argmin() + 1
 
     def get_histogram_from_images(self, figures, a, b):
-        im1 = Image.open(figures[a].visualFilename)
-        im2 = Image.open(figures[b].visualFilename)
-        return ImageChops.difference(im1, im2).histogram()
+        im1 = PIL.Image.open(figures[a].visualFilename)
+        im2 = PIL.Image.open(figures[b].visualFilename)
+        return PIL.ImageChops.difference(im1, im2).histogram()
 
     # Calculate similarity between two images with root mean square.
     def get_root_mean_square(self, arr):
-        return sqrt(mean(square(arr)))
+        return numpy.sqrt(numpy.mean(numpy.square(arr)))
 
     # Compare all possible comparisons to the comparator
     def build_comparisons(self, figures, comparator_figures):
@@ -163,6 +163,7 @@ class Agent:
     def select_random_from_slice(self, comparisons, number_of_matches):
         if number_of_matches == len(comparisons):
             return -1
+        print comparisons
         return int(random.choice(comparisons[0:number_of_matches])[0])
 
 
