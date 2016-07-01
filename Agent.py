@@ -8,30 +8,28 @@ class Agent:
 
     def Solve(self, problem):
         print 'Solving ' + problem.name
-        return self.find_best_match(problem.figures, problem.problemType)
+        return self.find_best_match(problem)
 
 
-    def find_best_match(self, figures, problemType):
-        # Solve 2x2 problems verbally
-        if problemType == '2x2':
-            comparisons = self.build_comparisons(figures, problemType)
+    def find_best_match(self, problem):
+        figures = problem.figures
+        problemType = problem.problemType
+        comparator_figures = self.get_comparator_figures(problemType)
+
+        if problem.hasVerbal:
+            comparisons = self.build_comparisons(figures, comparator_figures)
             comparisons = self.weight_comparisons(comparisons)
             comparisons = sorted(comparisons.items(), key=lambda x: x[1])
             number_of_matches = self.get_match_number(comparisons)
             return self.select_random_from_slice(comparisons, number_of_matches)
 
-        # Solve 3x3 problems visually
         else:
-            a_b = self.get_root_mean_square(self.get_histogram_from_images(figures, 'A', 'B'))
-            b_c = self.get_root_mean_square(self.get_histogram_from_images(figures, 'B', 'C'))
-            row_multiplier = a_b / b_c
-
+            comparator = self.get_root_mean_square(self.get_histogram_from_images(figures, comparator_figures[0], comparator_figures[1]))
             possible_answers = []
-            g_h = self.get_root_mean_square(self.get_histogram_from_images(figures, 'G', 'H'))
             for option in sorted(self.get_options(figures)):
-                h_x = self.get_root_mean_square(self.get_histogram_from_images(figures, 'H', str(option)))
-                possible_answers.append(g_h / h_x)
-            return abs(subtract.outer(possible_answers, row_multiplier)).argmin() + 1
+                compare = self.get_root_mean_square(self.get_histogram_from_images(figures, comparator_figures[2], str(option)))
+                possible_answers.append(compare)
+            return abs(subtract.outer(possible_answers, comparator)).argmin() + 1
 
     def get_histogram_from_images(self, figures, a, b):
         im1 = Image.open(figures[a].visualFilename)
@@ -43,8 +41,7 @@ class Agent:
         return sqrt(mean(square(arr)))
 
     # Compare all possible comparisons to the comparator
-    def build_comparisons(self, figures, problemType):
-        comparator_figures = self.get_comparator_figures(problemType)
+    def build_comparisons(self, figures, comparator_figures):
         comparator = self.diff_figures(figures, comparator_figures[0], comparator_figures[1])
         comparisons = {}
 
@@ -60,7 +57,7 @@ class Agent:
         if problemType == '2x2':
             return ['A', 'C', 'B']
         else:
-            return ['E', 'H', 'F']
+            return ['E', 'F', 'H']
 
 
     def weight_comparisons(self, comparisons):
@@ -69,24 +66,26 @@ class Agent:
             value = 0
             for diff in comparison:
                 for attr in diff:
-                    value = value + 10
+                    value = value + 5
                     if attr == 'shape':
                         value = value + 1
                     if attr == 'size':
-                        value = value + diff[attr]
+                        value = value + abs(diff[attr])
             comparisons[i] = value
         return comparisons
 
 
     def diff_figures(self, figures, a, b):
         differences = [];
-        while len(figures[b].objects) > len(figures[a].objects):
-            differences.append({'object': 'Added'})
-            figures[b].objects.pop(sorted(figures[b].objects)[0])
-        while len(figures[a].objects) > len(figures[b].objects):
-            differences.append({'object': 'Removed'})
-            figures[a].objects.pop(sorted(figures[a].objects)[0])
-        for i,j in zip(sorted(figures[a].objects), sorted(figures[b].objects)):
+        i = len(figures[b].objects) - len(figures[a].objects)
+        while i is not 0:
+            if i > 0:
+                differences.append({object: 'Added'})
+                i = i-1
+            if i < 0:
+                differences.append({object: 'Removed'})
+                i = i+1
+        for i,j in zip(reversed(sorted(figures[a].objects)), reversed(sorted(figures[b].objects))):
             objectA = figures[a].objects[i].attributes
             objectB = figures[b].objects[j].attributes
             differences.append(self.diff_objects(objectA, objectB))
@@ -133,7 +132,8 @@ class Agent:
         elif attribute in ['inside', 'left-of', 'above', 'overlaps', 'right-of', 'top-of', 'bottom-of', 'outside']:
             a = a or ""
             b = b or ""
-            return [len(str(a).split(",")), len(str(b).split(","))]
+            #return [len(str(a).split(",")), len(str(b).split(","))]
+            return None
         elif attribute == 'alignment':
             a = a or 'none-none'
             b = b or 'none-none'
