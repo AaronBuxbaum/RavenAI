@@ -163,7 +163,6 @@ class Agent:
     def select_random_from_slice(self, comparisons, number_of_matches):
         if number_of_matches == len(comparisons):
             return -1
-        print comparisons
         return int(random.choice(comparisons[0:number_of_matches])[0])
 
 
