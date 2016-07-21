@@ -14,19 +14,24 @@ class Agent:
 
     def collect_data(self, problem):
         answer = random.randint(1,8)
-        with open("KnownData.csv", "a") as KnownData:
-            KnownData.write('{}'.format(self.get_root_mean_square(self.convert_images())))
-            KnownData.write(',')
-            KnownData.write('{}'.format(self.get_root_mean_square(Image.open(figures[str(answer)].visualFilename).histogram())))
-            KnownData.write(',')
-            KnownData.write('\n')
+        self.write_data(self.get_root_mean_square(self.convert_images()))
+        self.write_data(',')
+        self.write_data(self.get_root_mean_square(self.get_histogram(answer)))
+        self.write_data('\n')
         return answer
+
+    def write_data(self, data):
+        with open("KnownData.csv", "a") as KnownData:
+            KnownData.write('{}'.format(data))
 
     def convert_images(self):
         arr = []
         for figure in self.get_figures():
-            arr.append(Image.open(figures[figure].visualFilename).histogram())
+            arr.append(self.get_histogram(figure))
         return arr
+
+    def get_histogram(self, a):
+        return Image.open(figures[str(a)].visualFilename).histogram()
 
 
 
