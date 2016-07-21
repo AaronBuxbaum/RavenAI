@@ -8,7 +8,34 @@ class Agent:
 
     def Solve(self, problem):
         print 'Solving ' + problem.name
-        return self.find_best_match(problem)
+        global figures
+        figures = problem.figures
+        return self.collect_data(problem)
+
+    def collect_data(self, problem):
+        answer = random.randint(1,8)
+        with open("KnownData.csv", "a") as KnownData:
+            KnownData.write('{}'.format(self.get_root_mean_square(self.convert_images())))
+            KnownData.write(',')
+            KnownData.write('{}'.format(self.get_root_mean_square(Image.open(figures[str(answer)].visualFilename).histogram())))
+            KnownData.write(',')
+            KnownData.write('\n')
+        return answer
+
+    def convert_images(self):
+        arr = []
+        for figure in self.get_figures():
+            arr.append(Image.open(figures[figure].visualFilename).histogram())
+        return arr
+
+
+
+    #for figure in self.get_figures(figures):
+        #ImageChops.difference(figure, im2).histogram()
+        #Image.open(figure.visualFilename)
+    #def compare_images(self, a, b):
+    #    return ImageChops.difference(self.open_image(a), self.open_image(b))
+
 
 
     def find_best_match(self, problem):
@@ -165,6 +192,8 @@ class Agent:
             return -1
         return int(random.choice(comparisons[0:number_of_matches])[0])
 
+    def get_figures(self):
+        return {k: v for k, v in figures.iteritems() if k.isalpha() == True}
 
-    def get_options(self, figures):
+    def get_options(self):
         return {k: v for k, v in figures.iteritems() if k.isalpha() == False}
