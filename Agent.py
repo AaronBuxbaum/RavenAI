@@ -21,17 +21,24 @@ class Agent:
 
     def find_best_match(self, rms_images):
         with open("KnownData.csv", "r") as KnownData:
-            closest = None
             closeness = float("inf")
+            closest = None
 
             for row in csv.reader(KnownData):
                 if row[3] == "Correct":
-                    diff = abs(float(row[0])-rms_images)
+                    diff = abs(float(row[0]) - rms_images)
                     if diff < closeness:
                         closeness = diff
                         closest = row
 
-        return int(closest[2])
+            closeness = float("inf")
+            best_match = None
+            for option in self.get_options():
+                diff = abs(self.get_root_mean_square(self.get_histogram(option)) - float(closest[1]))
+                if diff < closeness:
+                    closeness = diff
+                    best_match = option
+        return int(best_match)
 
     def collect_data(self, problemType, rms_images):
         numOptions = 6 if problemType == "2x2" else 8
