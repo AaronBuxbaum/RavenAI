@@ -1,0 +1,1 @@
+python RavensProject.py collect && python Answerize.py && rm RawKnownData.csv
