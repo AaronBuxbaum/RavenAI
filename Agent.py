@@ -21,12 +21,10 @@ class Agent:
 
     def find_best_match(self, rms_images):
         with open("KnownData.csv", "r") as KnownData:
-            data = csv.reader(KnownData)
-
             closest = None
             closeness = float("inf")
 
-            for row in data:
+            for row in csv.reader(KnownData):
                 if row[3] == "Correct":
                     diff = abs(float(row[0])-rms_images)
                     if diff < closeness:
