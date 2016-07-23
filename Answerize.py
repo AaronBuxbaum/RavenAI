@@ -1,7 +1,7 @@
 import csv
 from itertools import izip
 
-with file("RawKnownData.csv", "r") as rawdata, file("ProblemResults.csv", "r") as results, file("KnownData.csv", "a") as write:
+with file("RawKnownData.csv", "r") as rawdata, file("ProblemResults.csv", "r") as results, file("KnownData.csv", "ab") as write:
     rawdata = csv.reader(rawdata)
     results = csv.reader(results)
     writer = csv.writer(write)

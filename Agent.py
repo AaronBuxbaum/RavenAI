@@ -32,13 +32,17 @@ class Agent:
                         closest = row
 
             closeness = float("inf")
-            best_match = None
+            best_matches = []
             for option in self.get_options():
                 diff = abs(self.get_root_mean_square(self.get_histogram(option)) - float(closest[1]))
                 if diff < closeness:
                     closeness = diff
-                    best_match = option
-        return int(best_match)
+                    best_matches = [option]
+                elif diff == closeness:
+                    closeness = diff
+                    best_matches.append(option)
+            best_match = random.choice(best_matches)
+            return int(best_match)
 
     def collect_data(self, problemType, rms_images):
         numOptions = 6 if problemType == "2x2" else 8
