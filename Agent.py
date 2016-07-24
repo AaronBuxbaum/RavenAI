@@ -34,7 +34,7 @@ class Agent:
             closeness = float("inf")
             best_matches = []
             for option in self.get_options():
-                diff = abs(self.get_root_mean_square(self.get_histogram(option)) - float(closest[1]))
+                diff = abs(self.encode_option(option) - float(closest[1]))
                 if diff < closeness:
                     closeness = diff
                     best_matches = [option]
@@ -49,11 +49,14 @@ class Agent:
         answer = random.randint(1,numOptions)
         self.write_data(rms_images)
         self.write_data(",")
-        self.write_data(self.get_root_mean_square(self.get_histogram(answer)))
+        self.write_data(self.encode_option(answer))
         self.write_data(",")
         self.write_data(answer)
         self.write_data("\n")
         return answer
+
+    def encode_option(self, answer):
+        return self.get_root_mean_square(self.get_histogram(answer))
 
     def write_data(self, data):
         with open("RawKnownData.csv", "a") as RawKnownData:
