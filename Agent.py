@@ -74,7 +74,7 @@ class Agent:
         return arr
 
     def get_histogram(self, a):
-        return Image.open(figures[str(a)].visualFilename).resize([184, 184]).histogram()
+        return Image.open(figures[str(a)].visualFilename).convert('L').resize([184, 184]).histogram()
 
     def get_root_mean_square(self, arr):
         return numpy.sqrt(numpy.mean(numpy.square(arr)))
