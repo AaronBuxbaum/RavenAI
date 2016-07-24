@@ -22,14 +22,17 @@ class Agent:
     def find_best_match(self, rms_images):
         with open("KnownData.csv", "r") as KnownData:
             closeness = float("inf")
-            closest = None
+            closest_matches = []
 
             for row in csv.reader(KnownData):
                 if row[3] == "Correct":
                     diff = abs(float(row[0]) - rms_images)
                     if diff < closeness:
                         closeness = diff
-                        closest = row
+                        closest_matches = [row]
+                    elif diff == closeness:
+                        closest_matches.append(row)
+            closest = random.choice(closest_matches)
 
             closeness = float("inf")
             best_matches = []
@@ -39,9 +42,9 @@ class Agent:
                     closeness = diff
                     best_matches = [option]
                 elif diff == closeness:
-                    closeness = diff
                     best_matches.append(option)
             best_match = random.choice(best_matches)
+
             return int(best_match)
 
     def collect_data(self, problemType, rms_images):
@@ -56,7 +59,9 @@ class Agent:
         return answer
 
     def encode_option(self, answer):
-        return self.get_root_mean_square(self.get_histogram(answer))
+        tmp = self.convert_images()
+        tmp.append(self.get_histogram(answer))
+        return self.get_root_mean_square(tmp)
 
     def write_data(self, data):
         with open("RawKnownData.csv", "a") as RawKnownData:
@@ -69,7 +74,7 @@ class Agent:
         return arr
 
     def get_histogram(self, a):
-        return Image.open(figures[str(a)].visualFilename).histogram()
+        return Image.open(figures[str(a)].visualFilename).resize([184, 184]).histogram()
 
     def get_root_mean_square(self, arr):
         return numpy.sqrt(numpy.mean(numpy.square(arr)))

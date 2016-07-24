@@ -11,6 +11,7 @@
 import os
 import sys
 import csv
+import time
 
 from Agent import Agent
 from ProblemSet import ProblemSet
@@ -56,8 +57,10 @@ def solve():
 # The main execution will have your agent generate answers for all the problems,
 # then generate the grades for them.
 def main():
+    start = time.time()
     solve()
     grade()
+    print time.time() - start
 
 if __name__ == "__main__":
     main()
