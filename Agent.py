@@ -2,7 +2,7 @@ import random
 import numpy
 import sys
 import csv
-from PIL import Image, ImageChops
+from PIL import Image, ImageChops, ImageStat
 
 class Agent:
     def __init__(self):
@@ -47,9 +47,12 @@ class Agent:
 
             return int(best_match)
 
-    def collect_data(self, problemType, rms_images):
+    def pick_random_answer(self, problemType):
         numOptions = 6 if problemType == "2x2" else 8
-        answer = random.randint(1,numOptions)
+        return random.randint(1,numOptions)
+
+    def collect_data(self, problemType, rms_images):
+        answer = self.pick_random_answer(problemType)
         self.write_data(rms_images)
         self.write_data(",")
         self.write_data(self.encode_option(answer))
@@ -74,7 +77,8 @@ class Agent:
         return arr
 
     def get_histogram(self, a):
-        return Image.open(figures[str(a)].visualFilename).convert('L').resize([184, 184]).histogram()
+        hist = Image.open(figures[str(a)].visualFilename).convert('L').resize([184, 184]).histogram()
+        return ImageStat.Stat(hist).rms
 
     def get_root_mean_square(self, arr):
         return numpy.sqrt(numpy.mean(numpy.square(arr)))
